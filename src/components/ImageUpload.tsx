@@ -1,11 +1,13 @@
 import upload from "../assets/upload.svg";
 
+//Define component props type
 type Props = {
   file?: File;
   setFile: (file: File) => void;
 };
 
 const ImageUpload = ({ setFile }: Props) => {
+  // Handle file change
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
