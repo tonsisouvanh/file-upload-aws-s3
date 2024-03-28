@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import ImageUpload from "./components/ImageUpload";
 import Resizer from "react-image-file-resizer";
@@ -10,7 +9,6 @@ interface FilesType {
 }
 function App() {
   const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
 
   const resizeFile = (file: File, width: number, height: number) =>
@@ -31,11 +29,10 @@ function App() {
 
   const uploadFile = async (file: File | null) => {
     if (!file) return;
-    setProgress(0);
     setLoading(true);
     try {
       const thumbnail = (await resizeFile(file, 100, 100)) as File;
-      const originImage = await resizeFile(file, 200, 200);
+      const originImage = (await resizeFile(file, 200, 200)) as File;
 
       const files: FilesType[] = [
         {
@@ -56,7 +53,6 @@ function App() {
         };
         await myBucket.putObject(params).promise();
       }
-      setProgress(100);
       setLoading(false);
       alert("Upload complete!");
     } catch (error) {
@@ -67,12 +63,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (progress === 100) {
+    if (!loading) {
       setFile(null);
-      setProgress(0);
     }
-  }, [progress]);
-
+  }, [loading]);
   return (
     <>
       <div className="w-full h-screen flex items-center justify-center">
@@ -89,10 +83,10 @@ function App() {
               />
             </div>
           ) : (
-            <ImageUpload file={file} setFile={setFile} />
+            <ImageUpload setFile={setFile} />
           )}
 
-          <div className="w-full flex flex-col items-center justify-center mt-6">
+          <div className="w-full gap-4 flex items-center justify-center mt-6">
             <button
               className={`${
                 loading && "cursor-not-allowed"
@@ -102,6 +96,14 @@ function App() {
               onClick={() => uploadFile(file)}
             >
               {!loading ? "Upload" : "Loading..."}
+            </button>
+            <button
+              onClick={() => setFile(null)}
+              className={`${
+                loading && "cursor-not-allowed"
+              } bg-red-500 text-white px-4 py-2 w-60 hover:opacity-90 hover:scale-95 transition-transform duration-200 rounded-sm`}
+            >
+              Clear
             </button>
           </div>
         </div>

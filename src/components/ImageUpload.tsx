@@ -1,6 +1,15 @@
-const ImageUpload = ({ file, setFile }) => {
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+import upload from "../assets/upload.svg";
+
+type Props = {
+  file?: File;
+  setFile: (file: File) => void;
+};
+
+const ImageUpload = ({ setFile }: Props) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
   };
 
   return (
@@ -10,13 +19,9 @@ const ImageUpload = ({ file, setFile }) => {
           htmlFor="file-upload"
           className="w-full h-full cursor-pointer flex items-center justify-center"
         >
-          <div>
-            <p className="">
-              <span className="font-semibold text-blue-400">
-                Click to upload
-              </span>{" "}
-              / drag and drop
-            </p>
+          <div className="flex flex-col items-center justify-center">
+            <img className="w-44 h-44 object-cover" src={upload} alt="" />
+            <p className="font-semibold text-blue-400">Click to upload</p>
           </div>
           <input
             id="file-upload"
