@@ -5,14 +5,13 @@ import Resizer from "react-image-file-resizer";
 import { myBucket } from "./aws";
 
 interface FilesType {
-  name: string;
   file: File;
+  name: string;
 }
-
 function App() {
-  const [file, setFile] = useState(null);
-  const [progress, setProgress] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const resizeFile = (file: File, width: number, height: number) =>
     new Promise((resolve) => {
@@ -24,44 +23,46 @@ function App() {
         100,
         0,
         (uri) => {
-          resolve(uri);
+          resolve(uri as string);
         },
         "file"
       );
     });
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = async (file: File | null) => {
     if (!file) return;
     setProgress(0);
     setLoading(true);
     try {
-      const thumpnail = await resizeFile(file, 100, 100);
+      const thumbnail = (await resizeFile(file, 100, 100)) as File;
       const originImage = await resizeFile(file, 200, 200);
-      console.log("🚀 ~ uploadFile ~ originImage:", originImage);
 
       const files: FilesType[] = [
         {
-          file: thumpnail,
-          name: `thumpnail-${thumpnail.name}`,
+          file: thumbnail,
+          name: `thumbnail-${thumbnail.name}`,
         },
         {
-          file: originImage,
-          name: `${thumpnail.name}`,
+          file: originImage as File,
+          name: `${file.name}`,
         },
       ];
-      // for (let image of files) {
-      //   const params = {
-      //     Body: image.file,
-      //     Bucket: import.meta.env.VITE_APP_S3_BUCKET,
-      //     Key: image.name,
-      //   };
-      //   await myBucket.putObject(params).promise();
-      // }
+
+      for (const image of files) {
+        const params = {
+          Body: image.file,
+          Bucket: import.meta.env.VITE_APP_S3_BUCKET as string,
+          Key: image.name,
+        };
+        await myBucket.putObject(params).promise();
+      }
       setProgress(100);
       setLoading(false);
+      alert("Upload complete!");
     } catch (error) {
       setLoading(false);
       console.error("Upload failed:", error);
+      alert(error);
     }
   };
 
@@ -83,7 +84,7 @@ function App() {
             <div className="flex items-center justify-center">
               <img
                 className="w-[200px] h-auto"
-                src={URL.createObjectURL(file)}
+                src={URL.createObjectURL(file as File)}
                 alt="Selected Image"
               />
             </div>
